@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track and analyze your trading performance with advanced analytics, win/loss ratios, and strategy insights. Perfect for stock, forex, and crypto traders.">
+    <meta name="keywords" content="trading journal, stock tracker, forex journal, crypto trading, trade analysis, trading analytics, profit calculator">
+    <meta name="author" content="Your Name or Company">
+    <meta name="robots" content="index, follow">
+    <title>Trading Journal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-left">
+            <div class="login-left-content">
+                <div class="login-logo floating">
+                    <div class="login-logo-icon">TJ</div>
+                    <div class="login-logo-text">Trading Journal</div>
+                </div>
+                <h1 class="login-title">Track Your Trading Performance</h1>
+                <p class="login-subtitle">Analyze your trades, improve your strategy, and become a better trader</p>
+                
+                <div class="login-features">
+                    <div class="login-feature" style="animation-delay: 0.2s">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <h4>Detailed Analytics</h4>
+                            <p>Track win rates, profit factors, and more</p>
+                        </div>
+                    </div>
+                    <div class="login-feature" style="animation-delay: 0.4s">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div>
+                            <h4>Trading Calendar</h4>
+                            <p>Visualize your trading days at a glance</p>
+                        </div>
+                    </div>
+                    <div class="login-feature" style="animation-delay: 0.6s">
+                        <i class="fas fa-lightbulb"></i>
+                        <div>
+                            <h4>Strategy Insights</h4>
+                            <p>Discover what works best for you</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="login-right">
+            <div class="login-form-container">
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+                
+                <div class="login-form">
+                    <h2 class="form-title">Welcome Back</h2>
+                    
+                    <button id="googleLoginBtn" class="btn btn-google">
+                        <i class="fab fa-google"></i>
+                        Continue with Google
+                    </button>
+                    
+                    <div class="divider">or</div>
+                    
+                    <form id="emailLoginForm">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Sign In</button>
+                    </form>
+                    
+                    <div class="form-footer">
+                        Don't have an account? <a href="#" id="showSignUp">Sign up</a>
+                    </div>
+                </div>
+                
+                <div id="signUpForm" class="login-form" style="display: none; margin-top: 1.5rem;">
+                    <h2 class="form-title">Create Account</h2>
+                    
+                    <form id="emailSignUpForm">
+                        <div class="form-group">
+                            <label for="signupEmail">Email Address</label>
+                            <input type="email" id="signupEmail" class="form-control" placeholder="your@email.com" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signupPassword">Password</label>
+                            <input type="password" id="signupPassword" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                    </form>
+                    
+                    <div class="form-footer">
+                        Already have an account? <a href="#" id="showLogin">Sign in</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Trading Journal (hidden until authenticated) -->
+    <div id="tradingJournal" class="trading-journal">
+        <header class="header">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <div class="logo-icon">TJ</div>
+                    <div class="logo-text">Trading Journal</div>
+                </a>
+                
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="nav-container" id="navContainer">
+                    <nav class="nav-tabs">
+                        <a href="#" class="nav-tab active" data-tab="dashboard">Dashboard</a>
+                        <a href="#" class="nav-tab" data-tab="analysis">Analysis</a>
+                        <a href="#" class="nav-tab" data-tab="calendar">Calendar</a>
+                        <a href="#" class="nav-tab" data-tab="history">History</a>
+                    </nav>
+                    
+                    <div class="header-actions">
+                        <button id="darkModeToggle" class="btn btn-icon" title="Toggle Dark Mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button id="addTradeBtn" class="btn btn-primary btn-add-trade">
+                            <i class="fas fa-plus"></i>
+                            <span class="text">Add Trade</span>
+                        </button>
+                        <div class="user-profile" id="userProfile">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <span class="user-name" id="userName">User</span>
+                            <div class="user-menu" id="userMenu">
+                                <div class="user-menu-item" id="signOutBtn">Sign Out</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="container">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="section">
+                    <h2>Performance Summary</h2>
+                    <div class="grid">
+                        <div class="stats-card">
+                            <div class="stats-label">Total Profit/Loss</div>
+                            <div class="stats-value" id="totalProfitLoss">$0.00</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-label">Win Rate</div>
+                            <div class="stats-value" id="winRate">0%</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-label">Total Trades</div>
+                            <div class="stats-value" id="totalTrades">0</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-label">Average Trade</div>
+                            <div class="stats-value" id="avgTrade">$0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="win-rate-chart">
+                        <div class="win-segment" id="winSegment" style="width: 0%"></div>
+                        <div class="loss-segment" id="lossSegment" style="width: 0%"></div>
+                    </div>
+                    
+                    <div class="grid">
+                        <div class="stats-card">
+                            <div class="stats-label">Profit Factor</div>
+                            <div class="stats-value" id="profitFactor">0.00</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-label">Risk-Reward Ratio</div>
+                            <div class="stats-value" id="riskRewardRatio">0.00</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-label">Max Drawdown</div>
+                            <div class="stats-value negative" id="maxDrawdown">$0.00</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-label">Monthly P/L</div>
+                            <div class="stats-value" id="monthlyPL">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Trading Streak</h2>
+                    <div class="grid">
+                        <div class="streak-card">
+                            <div class="streak-value positive" id="currentStreak">0</div>
+                            <div class="streak-label">Current Streak</div>
+                        </div>
+                        <div class="streak-card">
+                            <div class="streak-value positive" id="longestWinStreak">0</div>
+                            <div class="streak-label">Longest Win Streak</div>
+                        </div>
+                        <div class="streak-card">
+                            <div class="streak-value negative" id="longestLossStreak">0</div>
+                            <div class="streak-label">Longest Loss Streak</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Recent Trades</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Symbol</th>
+                                    <th>Type</th>
+                                    <th>Price</th>
+                                    <th>Result</th>
+                                    <th>P/L</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTradesBody">
+                                <tr>
+                                    <td colspan="6" class="text-center">No trades yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Tab -->
+            <div id="analysis" class="tab-content">
+                <div class="section">
+                    <h2>Trade Analysis</h2>
+                    
+                    <div class="filters">
+                        <div class="filter-item">
+                            <label for="timeframeFilter">Timeframe:</label>
+                            <select id="timeframeFilter">
+                                <option value="all">All Time</option>
+                                <option value="month">This Month</option>
+                                <option value="week">This Week</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="symbolFilter">Symbol:</label>
+                            <select id="symbolFilter">
+                                <option value="all">All Symbols</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid">
+                        <div class="stats-card">
+                            <div class="stats-label">Best Trade</div>
+                            <div class="stats-value positive" id="bestTrade">$0.00</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-label">Worst Trade</div>
+                            <div class="stats-value negative" id="worstTrade">$0.00</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-label">Avg Win</div>
+                            <div class="stats-value positive" id="avgWin">$0.00</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-label">Avg Loss</div>
+                            <div class="stats-value negative" id="avgLoss">$0.00</div>
+                        </div>
+                    </div>
+                    
+                    <h3>Performance by Strategy</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Strategy</th>
+                                    <th>Trades</th>
+                                    <th>Win Rate</th>
+                                    <th>Profit/Loss</th>
+                                    <th>Avg P/L</th>
+                                </tr>
+                            </thead>
+                            <tbody id="strategyAnalysisBody">
+                                <tr>
+                                    <td colspan="5" class="text-center">No data available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h3>Performance by Symbol</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Trades</th>
+                                    <th>Win Rate</th>
+                                    <th>Profit/Loss</th>
+                                    <th>Avg P/L</th>
+                                </tr>
+                            </thead>
+                            <tbody id="symbolAnalysisBody">
+                                <tr>
+                                    <td colspan="5" class="text-center">No data available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h3>Performance by Day of Week</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Trades</th>
+                                    <th>Win Rate</th>
+                                    <th>Profit/Loss</th>
+                                    <th>Avg P/L</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dayAnalysisBody">
+                                <tr>
+                                    <td colspan="5" class="text-center">No data available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calendar Tab -->
+            <div id="calendar" class="tab-content">
+                <div class="section">
+                    <h2>Trading Calendar</h2>
+                    
+                    <div class="filters">
+                        <div class="filter-item">
+                            <label for="monthSelect">Month:</label>
+                            <select id="monthSelect"></select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="yearSelect">Year:</label>
+                            <select id="yearSelect"></select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="calendar">
+                            <thead>
+                                <tr>
+                                    <th>Sun</th>
+                                    <th>Mon</th>
+                                    <th>Tue</th>
+                                    <th>Wed</th>
+                                    <th>Thu</th>
+                                    <th>Fri</th>
+                                    <th>Sat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendarBody">
+                                <!-- Calendar will be generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="legend mt-4">
+                        <div class="legend-item">
+                            <div class="legend-color win-day"></div>
+                            <span>Win Day</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color loss-day"></div>
+                            <span>Loss Day</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color breakeven-day"></div>
+                            <span>Breakeven Day</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color no-trades"></div>
+                            <span>No Trades</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trade History Tab -->
+            <div id="history" class="tab-content">
+                <div class="section">
+                    <h2>Trade History</h2>
+                    
+                    <div class="filters">
+                        <div class="filter-item">
+                            <label for="historySymbolFilter">Symbol:</label>
+                            <input type="text" id="historySymbolFilter" placeholder="Filter by symbol">
+                        </div>
+                        <div class="filter-item">
+                            <label for="historyTypeFilter">Type:</label>
+                            <select id="historyTypeFilter">
+                                <option value="all">All Types</option>
+                                <option value="buy">Buy</option>
+                                <option value="sell">Sell</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="historyResultFilter">Result:</label>
+                            <select id="historyResultFilter">
+                                <option value="all">All Results</option>
+                                <option value="win">Win</option>
+                                <option value="loss">Loss</option>
+                                <option value="breakeven">Breakeven</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Symbol</th>
+                                    <th>Type</th>
+                                    <th>Strategy</th>
+                                    <th>Entry</th>
+                                    <th>Exit</th>
+                                    <th>Size</th>
+                                    <th>P/L</th>
+                                    <th>Result</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tradeHistoryBody">
+                                <tr>
+                                    <td colspan="10" class="text-center">No trades yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Add/Edit Trade Modal -->
+        <div id="tradeModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Add New Trade</h3>
+                    <button class="close">&times;</button>
+                </div>
+                <form id="tradeForm">
+                    <input type="hidden" id="tradeId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="tradeDate">Date</label>
+                            <input type="date" id="tradeDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tradeSymbol">Symbol</label>
+                            <input type="text" id="tradeSymbol" required placeholder="AAPL">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="tradeType">Type</label>
+                            <select id="tradeType" required>
+                                <option value="buy">Buy (Long)</option>
+                                <option value="sell">Sell (Short)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tradeStrategy">Strategy</label>
+                            <input type="text" id="tradeStrategy" placeholder="Breakout, Reversal, etc.">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="tradeEntry">Entry Price</label>
+                            <input type="number" id="tradeEntry" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tradeExit">Exit Price</label>
+                            <input type="number" id="tradeExit" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tradeSize">Position Size</label>
+                            <input type="number" id="tradeSize" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tradeNotes">Notes</label>
+                        <textarea id="tradeNotes" rows="3" placeholder="What went well? What could be improved?"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Trade</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Trade Details Modal -->
+        <div id="detailsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Trade Details</h3>
+                    <button class="close">&times;</button>
+                </div>
+                <div id="tradeDetails">
+                    <!-- Trade details will be populated here -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="container">
+                <p>Rex' Trading Journal - Track your trading performance</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
