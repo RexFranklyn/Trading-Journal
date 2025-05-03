@@ -310,6 +310,79 @@ function loginSuccess(user) {
     initTradingJournal();
 }
 
+// Forgot Password Functionality
+const forgotPasswordLink = document.getElementById('forgotPassword');
+const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+const resetEmail = document.getElementById('resetEmail');
+const sendResetLink = document.getElementById('sendResetLink');
+const resetPasswordMessage = document.getElementById('resetPasswordMessage');
+
+// Open modal when "Forgot Password" is clicked
+forgotPasswordLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal(forgotPasswordModal);
+});
+
+// Handle password reset
+sendResetLink.addEventListener('click', () => {
+    const email = resetEmail.value.trim();
+    
+    if (!email) {
+        showResetMessage('Please enter your email address', 'error');
+        return;
+    }
+
+    showLoading(sendResetLink);
+    
+    auth.sendPasswordResetEmail(email)
+        .then(() => {
+            showResetMessage('Password reset email sent! Check your inbox.', 'success');
+            resetEmail.value = '';
+        })
+        .catch((error) => {
+            let message = 'Error sending reset email.';
+            switch (error.code) {
+                case 'auth/user-not-found':
+                    message = 'No account found with this email.';
+                    break;
+                case 'auth/invalid-email':
+                    message = 'Please enter a valid email address.';
+                    break;
+                case 'auth/too-many-requests':
+                    message = 'Too many attempts. Try again later.';
+                    break;
+            }
+            showResetMessage(message, 'error');
+        })
+        .finally(() => {
+            hideLoading(sendResetLink);
+        });
+});
+
+function showResetMessage(message, type) {
+    resetPasswordMessage.textContent = message;
+    resetPasswordMessage.className = `message ${type}`;
+    setTimeout(() => {
+        resetPasswordMessage.style.display = 'none';
+    }, 5000);
+}
+
+// Close modal when clicking outside
+forgotPasswordModal.addEventListener('click', (e) => {
+    if (e.target === forgotPasswordModal) {
+        closeModal(forgotPasswordModal);
+        resetPasswordMessage.style.display = 'none';
+        resetEmail.value = '';
+    }
+});
+
+// Close modal with X button
+forgotPasswordModal.querySelector('.close').addEventListener('click', () => {
+    closeModal(forgotPasswordModal);
+    resetPasswordMessage.style.display = 'none';
+    resetEmail.value = '';
+});
+
 function updateUserProfile(user) {
     // Set user name and avatar
     const displayName = user.displayName || user.email.split('@')[0];

@@ -89,6 +89,9 @@
                     <div class="form-footer">
                         Don't have an account? <a href="#" id="showSignUp">Sign up</a>
                     </div>
+                    <div class="form-footer">
+                        <a href="#" id="forgotPassword">Forgot password?</a>
+                    </div>
                 </div>
                 
                 <div id="signUpForm" class="login-form" style="display: none; margin-top: 1.5rem;">
@@ -543,6 +546,25 @@
         </footer>
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Reset Password</h3>
+                <button class="close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="resetPasswordMessage" class="message"></div>
+                <div class="form-group">
+                    <label for="resetEmail">Enter your email address</label>
+                    <input type="email" id="resetEmail" class="form-control" placeholder="your@email.com" required>
+                </div>
+                <button id="sendResetLink" class="btn btn-primary">Send Reset Link</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
+    
 </body>
 </html>

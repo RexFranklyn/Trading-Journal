@@ -1178,3 +1178,27 @@ body.dark-mode {
         margin: 0;
     }
 }
+
+/* Forgot Password Modal Styles */
+#forgotPasswordModal .modal-content {
+    max-width: 400px;
+}
+
+.message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: var(--border-radius);
+    display: none;
+}
+
+.message.success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    display: block;
+}
+
+.message.error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    display: block;
+}
